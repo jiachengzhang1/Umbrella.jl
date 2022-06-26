@@ -21,9 +21,8 @@ const githubOptions = Configuration.Options(;
     scopes=["user"]
 )
 
-google_oauth2 = Guard.init(:google, options)
-
-github_oauth2 = Guard.init(:github, githubOptions)
+google_oauth2 = Guard.init(:google, options, Genie.Renderer.redirect)
+github_oauth2 = Guard.init(:github, githubOptions, Genie.Renderer.redirect)
 
 route("/") do
     return """
@@ -42,25 +41,31 @@ route("/oauth2/github") do
 end
 
 route("/oauth2/google/callback") do
-    function verify(tokens::Guard.Google.Tokens, profile::Guard.Google.User)
+    code = Genie.params(:code, nothing)
+    function verify(tokens::Guard.Google.Tokens, user::Guard.Google.User)
         println(tokens.access_token)
-        println(profile.email)
+        println(user.email)
     end
 
-    google_oauth2.token_exchange(verify)
+    google_oauth2.token_exchange(code, verify)
 end
 
 route("/oauth2/github/callback") do
-    function verify(tokens::Guard.GitHub.Tokens, profile::Guard.GitHub.User)
+    code = Genie.params(:code, nothing)
+    function verify(tokens::Guard.GitHub.Tokens, user::Guard.GitHub.User)
         println(tokens.access_token)
-        println(profile["name"])
+        println(user.name)
     end
 
-    github_oauth2.token_exchange(verify)
+    github_oauth2.token_exchange(code, verify)
 end
 
 route("/yes") do
     return "234"
+end
+
+route("/no") do
+    return "no"
 end
 
 up(3000, async=false)

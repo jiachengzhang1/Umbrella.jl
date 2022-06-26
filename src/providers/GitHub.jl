@@ -21,8 +21,112 @@ end
 
 StructTypes.StructType(::Type{Tokens}) = StructTypes.Mutable()
 
-mutable struct User end
+mutable struct User
+    login::String
+    id::Int64
+    node_id::String
+    avatar_url::String
+    gravatar_id::String
+    url::String
+    html_url::String
+    followers_url::String
+    following_url::String
+    gists_url::String
+    starred_url::String
+    subscriptions_url::String
+    organizations_url::String
+    repos_url::String
+    events_url::String
+    received_events_url::String
+    type::String
+    site_admin::Bool
+    name::String
+    company::String
+    blog::String
+    location::String
+    email::String
+    hireable::Bool
+    bio::String
+    twitter_username::String
+    public_repos::Int64
+    public_gists::Int64
+    followers::Int64
+    following::Int64
+    created_at::String
+    updated_at::String
 
+    function User(;
+        login::String="",
+        id::Int64=0,
+        node_id::String="",
+        avatar_url::String="",
+        gravatar_id::String="",
+        url::String="",
+        html_url::String="",
+        followers_url::String="",
+        following_url::String="",
+        gists_url::String="",
+        starred_url::String="",
+        subscriptions_url::String="",
+        organizations_url::String="",
+        repos_url::String="",
+        events_url::String="",
+        received_events_url::String="",
+        type::String="",
+        site_admin::Bool=false,
+        name::String="",
+        company::String="",
+        blog::String="",
+        location::String="",
+        email::String="",
+        hireable::Bool=false,
+        bio::String="",
+        twitter_username::String="",
+        public_repos::Int64=0,
+        public_gists::Int64=0,
+        followers::Int64=0,
+        following::Int64=0,
+        created_at::String="",
+        updated_at::String=""
+    )
+        return new(
+            login,
+            id,
+            node_id,
+            avatar_url,
+            gravatar_id,
+            url,
+            html_url,
+            followers_url,
+            following_url,
+            gists_url,
+            starred_url,
+            subscriptions_url,
+            organizations_url,
+            repos_url,
+            events_url,
+            received_events_url,
+            type,
+            site_admin,
+            name,
+            company,
+            blog,
+            location,
+            email,
+            hireable,
+            bio,
+            twitter_username,
+            public_repos,
+            public_gists,
+            followers,
+            following,
+            created_at,
+            updated_at
+        )
+    end
+end
+
+StructTypes.StructType(::Type{User}) = StructTypes.Mutable()
 
 function redirect_url(config::Guard.Configuration.Options)
     login = ""
@@ -54,7 +158,7 @@ function _get_user(url::String, access_token::String)
     headers = ["Authorization" => """Bearer $(access_token)"""]
     response = HTTP.get(url, headers)
     body = String(response.body)
-    return JSON3.read(body, User)
+    return JSON3.read(remove_json_null(body), User)
 end
 
 function _token_exchange(url::String, headers::Vector{Pair{String,String}}, body::String)
@@ -63,6 +167,10 @@ function _token_exchange(url::String, headers::Vector{Pair{String,String}}, body
     tokens = JSON3.read(JSON.json(URIs.queryparams(String(response.body))), Tokens)
 
     return tokens
+end
+
+function remove_json_null(json::String)
+    return replace(json, "null" => "\"\"")
 end
 
 end

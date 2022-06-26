@@ -56,11 +56,14 @@ function redirect_url(config::Guard.Configuration.Options)
     return """$(AUTH_URL)?$(query)"""
 end
 
-function token_exchange(code::String, config::Guard.Configuration.Options)
-    tokens = _exchange_token(TOKEN_URL, code, config)
-    profile = _get_user(USER_URL, tokens.access_token)
-
-    return tokens, profile
+function token_exchange(code::String, config::Guard.Configuration.Options; verbose::Int64=0)
+    try
+        tokens = _exchange_token(TOKEN_URL, code, config)
+        profile = _get_user(USER_URL, tokens.access_token)
+        return tokens, profile
+    catch e
+        return nothing, nothing
+    end
 end
 
 function _get_user(url::String, access_token::String)

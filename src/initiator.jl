@@ -16,19 +16,21 @@ const oauth2_typed_actions = Dict(
     )
 )
 
-function init(type::Symbol, config::Configuration.Options)
+function init(type::Symbol, config::Configuration.Options, redirect_hanlder::Function)
     actions = oauth2_typed_actions[type]
     return OAuth2(
         type,
         function ()
             url = actions[:redirect_url](config)
-            Genie.Renderer.redirect(url)
+            redirect_hanlder(url)
         end,
-        function (verify::Function)
-            code = Genie.params(:code, nothing)
+        function (code::String, verify::Function)
             tokens, profile = actions[:token_exchange](code, config)
+            if tokens === nothing || profile === nothing
+                return redirect_hanlder(config.failure_redirect)
+            end
             verify(tokens, profile)
-            Genie.Renderer.redirect(config.success_redirect)
+            redirect_hanlder(config.success_redirect)
         end
     )
 end
