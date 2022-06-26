@@ -1,0 +1,13 @@
+name = "Guard"
+uuid = "fb3c7edd-4d33-4ece-bf81-49ff2d418a94"
+authors = ["Jiacheng Zhang <zhangjiacheng54@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+StructTypes = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
+URIs = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
