@@ -1,4 +1,4 @@
-module Guard
+module Umbrella
 
 include("Configuration.jl")
 include("providers/Google.jl")

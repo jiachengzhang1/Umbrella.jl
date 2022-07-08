@@ -1,7 +1,7 @@
 module Google
 
 using StructTypes
-using Guard
+using Umbrella
 
 import HTTP, JSON3, JSON, URIs
 
@@ -46,7 +46,7 @@ end
 
 StructTypes.StructType(::Type{User}) = StructTypes.Mutable()
 
-function redirect_url(config::Guard.Configuration.Options)
+function redirect_url(config::Umbrella.Configuration.Options)
     include_granted_scopes = "true"
     access_type = "offline"
     response_type = "code"
@@ -56,7 +56,7 @@ function redirect_url(config::Guard.Configuration.Options)
     return """$(AUTH_URL)?$(query)"""
 end
 
-function token_exchange(code::String, config::Guard.Configuration.Options; verbose::Int64=0)
+function token_exchange(code::String, config::Umbrella.Configuration.Options; verbose::Int64=0)
     try
         tokens = _exchange_token(TOKEN_URL, code, config)
         profile = _get_user(USER_URL, tokens.access_token)
@@ -73,7 +73,7 @@ function _get_user(url::String, access_token::String)
     return JSON3.read(body, User)
 end
 
-function _exchange_token(url::String, code::String, config::Guard.Configuration.Options)
+function _exchange_token(url::String, code::String, config::Umbrella.Configuration.Options)
     headers = ["Content-Type" => "application/x-www-form-urlencoded"]
     grand_type = "authorization_code"
 

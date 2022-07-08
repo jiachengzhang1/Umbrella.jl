@@ -1,7 +1,7 @@
 using Genie
 using Genie.Router
 using Genie.Renderer
-using Guard, Guard.Configuration
+using Umbrella, Umbrella.Configuration
 
 const options = Configuration.Options(;
     client_id="",
@@ -18,11 +18,11 @@ const githubOptions = Configuration.Options(;
     redirect_uri="http://localhost:3000/oauth2/github/callback",
     success_redirect="/yes",
     failure_redirect="/no",
-    scopes=["user"]
+    scopes=["user", "email", "profile"]
 )
 
-google_oauth2 = Guard.init(:google, options, Genie.Renderer.redirect)
-github_oauth2 = Guard.init(:github, githubOptions, Genie.Renderer.redirect)
+google_oauth2 = Umbrella.init(:google, options, Genie.Renderer.redirect)
+github_oauth2 = Umbrella.init(:github, githubOptions, Genie.Renderer.redirect)
 
 route("/") do
     return """
@@ -42,7 +42,7 @@ end
 
 route("/oauth2/google/callback") do
     code = Genie.params(:code, nothing)
-    function verify(tokens::Guard.Google.Tokens, user::Guard.Google.User)
+    function verify(tokens::Umbrella.Google.Tokens, user::Umbrella.Google.User)
         println(tokens.access_token)
         println(user.email)
     end
@@ -52,9 +52,10 @@ end
 
 route("/oauth2/github/callback") do
     code = Genie.params(:code, nothing)
-    function verify(tokens::Guard.GitHub.Tokens, user::Guard.GitHub.User)
+    function verify(tokens::Umbrella.GitHub.Tokens, user::Umbrella.GitHub.User)
         println(tokens.access_token)
         println(user.name)
+        println(user)
     end
 
     github_oauth2.token_exchange(code, verify)

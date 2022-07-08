@@ -1,7 +1,7 @@
 module GitHub
 
 using StructTypes
-using Guard
+using Umbrella
 
 import HTTP, JSON3, JSON, URIs
 
@@ -128,7 +128,7 @@ end
 
 StructTypes.StructType(::Type{User}) = StructTypes.Mutable()
 
-function redirect_url(config::Guard.Configuration.Options)
+function redirect_url(config::Umbrella.Configuration.Options)
     login = ""
     state = "asdfasgsfqerwrtgedf"
     allow_signup = "true"
@@ -138,7 +138,7 @@ function redirect_url(config::Guard.Configuration.Options)
     return """$(AUTH_URL)?$(query)"""
 end
 
-function token_exchange(code::String, config::Guard.Configuration.Options)
+function token_exchange(code::String, config::Umbrella.Configuration.Options)
     headers = ["Content-Type" => "application/json"]
 
     body = Dict(
