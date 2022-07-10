@@ -8,4 +8,6 @@ include("providers/GitHub.jl")
 export Configuration, OAuth2Actions
 export init, register
 
+export Google, GitHub
+
 end # module

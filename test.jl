@@ -1,7 +1,7 @@
 using Genie
 using Genie.Router
 using Genie.Renderer
-using Umbrella, Umbrella.Configuration
+using Umbrella
 
 const options = Configuration.Options(;
     client_id="",
@@ -21,8 +21,8 @@ const githubOptions = Configuration.Options(;
     scopes=["user", "email", "profile"]
 )
 
-google_oauth2 = Umbrella.init(:google, options, Genie.Renderer.redirect)
-github_oauth2 = Umbrella.init(:github, githubOptions, Genie.Renderer.redirect)
+google_oauth2 = init(:google, options, Genie.Renderer.redirect)
+github_oauth2 = init(:github, githubOptions, Genie.Renderer.redirect)
 
 route("/") do
     return """
@@ -42,7 +42,7 @@ end
 
 route("/oauth2/google/callback") do
     code = Genie.params(:code, nothing)
-    function verify(tokens::Umbrella.Google.Tokens, user::Umbrella.Google.User)
+    function verify(tokens::Google.Tokens, user::Google.User)
         println(tokens.access_token)
         println(user.email)
     end
@@ -52,7 +52,7 @@ end
 
 route("/oauth2/github/callback") do
     code = Genie.params(:code, nothing)
-    function verify(tokens::Umbrella.GitHub.Tokens, user::Umbrella.GitHub.User)
+    function verify(tokens::GitHub.Tokens, user::GitHub.User)
         println(tokens.access_token)
         println(user.name)
         println(user)
