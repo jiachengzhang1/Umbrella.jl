@@ -3,7 +3,7 @@ module GitHub
 using StructTypes
 using Umbrella
 
-import HTTP, JSON3, JSON, URIs
+import HTTP, JSON3, URIs
 
 const AUTH_URL = "https://github.com/login/oauth/authorize"
 const TOKEN_URL = "https://github.com/login/oauth/access_token"
@@ -148,7 +148,7 @@ function token_exchange(code::String, config::Umbrella.Configuration.Options)
         "redirect_uri" => config.redirect_uri,
     )
 
-    tokens = _token_exchange(TOKEN_URL, headers, JSON.json(body))
+    tokens = _token_exchange(TOKEN_URL, headers, JSON3.write(body))
     profile = _get_user(USER_URL, tokens.access_token)
 
     return tokens, profile
@@ -163,14 +163,17 @@ end
 
 function _token_exchange(url::String, headers::Vector{Pair{String,String}}, body::String)
     response = HTTP.post(url, headers, body)
-
-    tokens = JSON3.read(JSON.json(URIs.queryparams(String(response.body))), Tokens)
-
+    tokens = dict_to_struct(URIs.queryparams(String(response.body)), Tokens)
     return tokens
 end
 
 function remove_json_null(json::String)
     return replace(json, "null" => "\"\"")
+end
+
+function dict_to_struct(dict::Dict{String, String}, type)
+    d = Dict(Symbol(k) => v for (k, v) in dict)
+    type(;d...)
 end
 
 Umbrella.register(:github, Umbrella.OAuth2Actions(redirect_url, token_exchange))

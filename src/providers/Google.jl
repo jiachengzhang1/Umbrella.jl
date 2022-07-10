@@ -3,7 +3,7 @@ module Google
 using StructTypes
 using Umbrella
 
-import HTTP, JSON3, JSON, URIs
+import HTTP, JSON3, URIs
 
 const AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 const TOKEN_URL = "https://oauth2.googleapis.com/token"
