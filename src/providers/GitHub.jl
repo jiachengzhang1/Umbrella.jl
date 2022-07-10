@@ -162,7 +162,7 @@ function _get_user(url::String, access_token::String)
 end
 
 function _token_exchange(url::String, headers::Vector{Pair{String,String}}, body::String)
-    response = HTTP.post(url, headers, body, verbose=2)
+    response = HTTP.post(url, headers, body)
 
     tokens = JSON3.read(JSON.json(URIs.queryparams(String(response.body))), Tokens)
 
@@ -172,5 +172,7 @@ end
 function remove_json_null(json::String)
     return replace(json, "null" => "\"\"")
 end
+
+Umbrella.register(:github, Umbrella.OAuth2Actions(redirect_url, token_exchange))
 
 end

@@ -5,23 +5,26 @@ mutable struct OAuth2
     token_exchange::Function
 end
 
-const oauth2_typed_actions = Dict(
-    :google => Dict(
-        :redirect_url => Google.redirect_url,
-        :token_exchange => Google.token_exchange
-    ),
-    :github => Dict(
-        :redirect_url => GitHub.redirect_url,
-        :token_exchange => GitHub.token_exchange
+mutable struct OAuth2Actions
+    redirect::Function
+    token_exchange::Function
+end
+
+const oauth2_typed_actions = Dict()
+
+function register(type::Symbol, oauth2_actions::OAuth2Actions)
+    oauth2_typed_actions[type] = Dict(
+        :redirect => oauth2_actions.redirect,
+        :token_exchange => oauth2_actions.token_exchange
     )
-)
+end
 
 function init(type::Symbol, config::Configuration.Options, redirect_hanlder::Function)
     actions = oauth2_typed_actions[type]
     return OAuth2(
         type,
         function ()
-            url = actions[:redirect_url](config)
+            url = actions[:redirect](config)
             redirect_hanlder(url)
         end,
         function (code::String, verify::Function)

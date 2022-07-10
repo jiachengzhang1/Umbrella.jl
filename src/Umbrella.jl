@@ -1,10 +1,11 @@
 module Umbrella
 
 include("Configuration.jl")
+include("initiator.jl")
 include("providers/Google.jl")
 include("providers/GitHub.jl")
-include("initiator.jl")
 
-export init
+export Configuration, OAuth2Actions
+export init, register
 
 end # module
