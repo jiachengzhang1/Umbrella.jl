@@ -1,5 +1,6 @@
 module Umbrella
 
+include("utils.jl")
 include("Configuration.jl")
 include("initiator.jl")
 

@@ -9,6 +9,16 @@ const AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 const TOKEN_URL = "https://oauth2.googleapis.com/token"
 const USER_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
+export GoogleOptions
+
+Base.@kwdef struct GoogleOptions <: Umbrella.Configuration.ProviderOptions
+    response_type::String = "code"
+    access_type::String = "offline" # online or offline
+    include_granted_scopes::Union{Bool,Nothing} = nothing
+    login_hint::Union{String,Nothing} = nothing
+    prompt::Union{String,Nothing} = nothing # none, consent, select_account
+end
+
 mutable struct Tokens
     access_token::String
     refresh_token::String
@@ -47,13 +57,46 @@ end
 StructTypes.StructType(::Type{User}) = StructTypes.Mutable()
 
 function redirect_url(config::Umbrella.Configuration.Options)
-    include_granted_scopes = "true"
-    access_type = "offline"
-    response_type = "code"
+    if config.providerOptions === nothing
+        googleOptions = GoogleOptions()
+    else
+        googleOptions = config.providerOptions
+    end
+    
+    state = config.state
+    include_granted_scopes = googleOptions.include_granted_scopes
+    access_type = googleOptions.access_type
+    response_type = googleOptions.response_type
+    prompt = googleOptions.prompt
+    login_hint = googleOptions.login_hint
 
-    query = """client_id=$(config.client_id)&redirect_uri=$(config.redirect_uri)&scope=$(config.scope)&include_granted_scopes=$(include_granted_scopes)&response_type=$(response_type)&access_type=$(access_type)"""
+    params = [
+        "client_id=$(config.client_id)",
+        "redirect_uri=$(config.redirect_uri)",
+        "scope=$(config.scope)",
+        "access_type=$(access_type)",
+        "response_type=$(response_type)",
+    ]
 
-    return """$(AUTH_URL)?$(query)"""
+    if state !== nothing
+        push!(params, "state=$(state)")
+    end
+
+    if include_granted_scopes !== nothing
+        push!(params, "include_granted_scopes=$(String(include_granted_scopes))")
+    end
+
+    if prompt !== nothing
+        push!(params, "prompt=$(prompt)")
+    end
+
+    if login_hint !== nothing
+        push!(params, "login_hint=$(login_hint)")
+    end
+
+    query = join(params, "&")
+    println(query)
+    return "$(AUTH_URL)?$(query)"
 end
 
 function token_exchange(code::String, config::Umbrella.Configuration.Options)
@@ -62,6 +105,7 @@ function token_exchange(code::String, config::Umbrella.Configuration.Options)
         profile = _get_user(USER_URL, tokens.access_token)
         return tokens, profile
     catch e
+        @error "Unable to complete token exchange" exception=(e, catch_backtrace())
         return nothing, nothing
     end
 end

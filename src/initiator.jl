@@ -19,7 +19,7 @@ function register(type::Symbol, oauth2_actions::OAuth2Actions)
     )
 end
 
-function init(type::Symbol, config::Configuration.Options, redirect_hanlder::Function)
+function init(type::Symbol, config::Configuration.Options, redirect_hanlder::Function = redirect)
     actions = oauth2_typed_actions[type]
     return OAuth2(
         type,

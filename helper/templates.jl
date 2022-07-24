@@ -12,6 +12,14 @@ const AUTH_URL = "{{{provider_auth_url}}}"
 const TOKEN_URL = "{{{provider_token_url}}}"
 const USER_URL = "{{{provider_user_url}}}"
 
+export {{provider}}Options
+
+Base.@kwdef struct {{provider}}Options <: Umbrella.Configuration.ProviderOptions
+    {{#provider_opts_fields}}
+    {{name}}::{{type}}={{#default}}{{default}}{{/default}}{{^default}}""{{/default}}
+    {{/provider_opts_fields}}
+end
+
 Base.@kwdef mutable struct Tokens
     {{#token_fields}}
     {{name}}::{{type}}={{#default}}{{default}}{{/default}}{{^default}}""{{/default}}
@@ -29,6 +37,12 @@ end
 StructTypes.StructType(::Type{User}) = StructTypes.Mutable()
 
 function redirect_url(config::Umbrella.Configuration.Options)
+    if config.providerOptions === nothing
+        options = {{provider}}Options()
+    else
+        options = config.providerOptions
+    end
+
     # TODO: implement building {{provider}} redirect url
 end
 

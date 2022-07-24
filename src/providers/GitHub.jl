@@ -9,6 +9,13 @@ const AUTH_URL = "https://github.com/login/oauth/authorize"
 const TOKEN_URL = "https://github.com/login/oauth/access_token"
 const USER_URL = "https://api.github.com/user"
 
+export GitHubOptions
+
+Base.@kwdef struct GitHubOptions <: Umbrella.Configuration.ProviderOptions
+    login::Union{String,Nothing} = nothing
+    allow_signup::Bool = true
+end
+
 mutable struct Tokens
     access_token::String
     scope::String
@@ -129,13 +136,41 @@ end
 StructTypes.StructType(::Type{User}) = StructTypes.Mutable()
 
 function redirect_url(config::Umbrella.Configuration.Options)
-    login = ""
-    state = "asdfasgsfqerwrtgedf"
-    allow_signup = "true"
+    if config.providerOptions === nothing
+        options = GitHubOptionsOptions()
+    else
+        options = config.providerOptions
+    end
 
-    query = """client_id=$(config.client_id)&redirect_uri=$(config.redirect_uri)&scope=$(config.scope)&login=$(login)&state=$(state)&allow_signup=$(allow_signup)"""
+    state = config.state
+    login = options.login
+    allow_signup = options.allow_signup
 
-    return """$(AUTH_URL)?$(query)"""
+    params = [
+        "client_id=$(config.client_id)",
+        "redirect_uri=$(config.redirect_uri)",
+        "scope=$(config.scope)",
+        "allow_signup=$(allow_signup)",
+    ]
+
+    if state !== nothing
+        push!(params, "state=$(state)")
+    end
+
+    if login !== nothing
+        push!(params, "login=$(login)")
+    end
+
+    # query = "client_id=$(config.client_id)&
+    #     redirect_uri=$(config.redirect_uri)&
+    #     scope=$(config.scope)&
+    #     login=$(login)&
+    #     state=$(state)&
+    #     allow_signup=$(allow_signup)"
+
+    query = join(params, "&")
+    
+    return "$(AUTH_URL)?$(query)"
 end
 
 function token_exchange(code::String, config::Umbrella.Configuration.Options)
@@ -148,10 +183,14 @@ function token_exchange(code::String, config::Umbrella.Configuration.Options)
         "redirect_uri" => config.redirect_uri,
     )
 
-    tokens = _token_exchange(TOKEN_URL, headers, JSON3.write(body))
-    profile = _get_user(USER_URL, tokens.access_token)
-
-    return tokens, profile
+    try
+        tokens = _token_exchange(TOKEN_URL, headers, JSON3.write(body))
+        profile = _get_user(USER_URL, tokens.access_token)
+        return tokens, profile
+    catch e
+        @error "Unable to complete token exchange" exception=(e, catch_backtrace())
+        return nothing, nothing
+    end
 end
 
 function _get_user(url::String, access_token::String)

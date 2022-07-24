@@ -9,6 +9,12 @@ const AUTH_URL = "https://www.facebook.com/v14.0/dialog/oauth"
 const TOKEN_URL = "https://graph.facebook.com/v14.0/oauth/access_token"
 const USER_URL = "https://graph.facebook.com/me"
 
+export FacebookOptions
+
+Base.@kwdef struct FacebookOptions <: Umbrella.Configuration.ProviderOptions
+    response_type::String = code # code, token, code%20token, granted_scopes
+end
+
 Base.@kwdef mutable struct Tokens
     access_token::String=""
     refresh_token::String=""
@@ -30,8 +36,28 @@ end
 StructTypes.StructType(::Type{User}) = StructTypes.Mutable()
 
 function redirect_url(config::Umbrella.Configuration.Options)
-    state = "" # TODO: include state
-    query = "client_id=$(config.client_id)&redirect_uri=$(config.redirect_uri)&state=$(state)"
+    if config.providerOptions === nothing
+        options = GitHubOptionsOptions()
+    else
+        options = config.providerOptions
+    end
+
+    state = config.state
+
+    params = [
+        "client_id=$(config.client_id)",
+        "redirect_uri=$(config.redirect_uri)",
+        "scope=$(config.scope)",
+        "response_type=$(options.response_type)",
+    ]
+
+    if state !== nothing
+        push!(params, "state=$(state)")
+    end
+
+    query = join(params, "&")
+
+    # query = "client_id=$(config.client_id)&redirect_uri=$(config.redirect_uri)&state=$(state)"
 
     return "$(AUTH_URL)?$(query)"
 end
