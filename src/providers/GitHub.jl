@@ -137,7 +137,7 @@ StructTypes.StructType(::Type{User}) = StructTypes.Mutable()
 
 function redirect_url(config::Umbrella.Configuration.Options)
     if config.providerOptions === nothing
-        options = GitHubOptionsOptions()
+        options = GitHubOptions()
     else
         options = config.providerOptions
     end

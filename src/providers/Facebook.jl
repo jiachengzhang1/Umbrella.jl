@@ -12,7 +12,7 @@ const USER_URL = "https://graph.facebook.com/me"
 export FacebookOptions
 
 Base.@kwdef struct FacebookOptions <: Umbrella.Configuration.ProviderOptions
-    response_type::String = code # code, token, code%20token, granted_scopes
+    response_type::String = "code" # code, token, code%20token, granted_scopes
 end
 
 Base.@kwdef mutable struct Tokens
@@ -37,7 +37,7 @@ StructTypes.StructType(::Type{User}) = StructTypes.Mutable()
 
 function redirect_url(config::Umbrella.Configuration.Options)
     if config.providerOptions === nothing
-        options = GitHubOptionsOptions()
+        options = FacebookOptions()
     else
         options = config.providerOptions
     end
