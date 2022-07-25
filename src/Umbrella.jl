@@ -14,7 +14,7 @@ for file in readdir(PROVIDER_DIR)
   end
 end
 
-export Configuration, OAuth2Actions
+export Configuration, OAuth2Actions, OAuth2
 export init, register
 
 end # module
