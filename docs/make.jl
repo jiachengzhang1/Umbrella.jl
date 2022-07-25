@@ -10,3 +10,7 @@ makedocs(
     "Examples" => "examples.md",
   ]
 )
+
+deploydocs(
+    repo = "github.com/jiachengzhang1/Umbrella.jl.git"
+)
