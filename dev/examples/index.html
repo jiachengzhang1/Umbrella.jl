@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Examples · Umbrella.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">Umbrella.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Overview</a></li><li><a class="tocitem" href="../reference/">API Reference</a></li><li class="is-active"><a class="tocitem" href>Examples</a><ul class="internal"><li><a class="tocitem" href="#Integrate-with-Genie.jl"><span>Integrate with Genie.jl</span></a></li><li><a class="tocitem" href="#Integrate-with-Oxygen.jl"><span>Integrate with Oxygen.jl</span></a></li><li><a class="tocitem" href="#Integrate-with-Mux.jl"><span>Integrate with Mux.jl</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Examples</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Examples</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/jiachengzhang1/Umbrella.jl/blob/main/docs/src/examples.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h1><p>Umbrella.jl supports different OAuth 2 providers, and it integrates with Julia web framework such as <a href="https://github.com/GenieFramework/Genie.jl">Genie.jl</a>, <a href="https://github.com/ndortega/Oxygen.jl">Oxygen.jl</a> or <a href="https://github.com/JuliaWeb/Mux.jl">Mux.jl</a> effortlessly, some examples to demo how it works.</p><h2 id="Integrate-with-Genie.jl"><a class="docs-heading-anchor" href="#Integrate-with-Genie.jl">Integrate with Genie.jl</a><a id="Integrate-with-Genie.jl-1"></a><a class="docs-heading-anchor-permalink" href="#Integrate-with-Genie.jl" title="Permalink"></a></h2><p>Great work <a href="https://github.com/GenieFramework/Genie.jl">Genie.jl</a></p><pre><code class="language-julia hljs">using Genie, Genie.Router
+using Umbrella, Umbrella.Google
+
+const options = Configuration.Options(;
+    client_id=&quot;&quot;, # client id from Google API Console
+    client_secret=&quot;&quot;, # secret from Google API Console
+    redirect_uri = &quot;http://localhost:3000/oauth2/google/callback&quot;,
+    success_redirect=&quot;/protected&quot;,
+    failure_redirect=&quot;/failed&quot;,
+    scopes = [&quot;profile&quot;, &quot;openid&quot;, &quot;email&quot;],
+    providerOptions = GoogleOptions(access_type=&quot;online&quot;)
+)
+
+google_oauth2 = init(:google, options)
+
+route(&quot;/&quot;) do
+    return &quot;&lt;a href=&#39;/oauth2/google&#39;&gt;Authenticate with Google&lt;/a&gt;&quot;
+end
+
+route(&quot;/oauth2/google&quot;) do
+    google_oauth2.redirect()
+end
+
+route(&quot;/oauth2/google/callback&quot;) do
+  code = Genie.params(:code, nothing)
+  function verify(tokens::Google.Tokens, user::Google.User)
+    # handle access and refresh tokens and user profile here
+  end
+  
+  google_oauth2.token_exchange(code, verify)
+end
+
+route(&quot;/protected&quot;) do
+    &quot;Congrets, You signed in Successfully!&quot;
+end
+
+up(3000, async=false)</code></pre><h2 id="Integrate-with-Oxygen.jl"><a class="docs-heading-anchor" href="#Integrate-with-Oxygen.jl">Integrate with Oxygen.jl</a><a id="Integrate-with-Oxygen.jl-1"></a><a class="docs-heading-anchor-permalink" href="#Integrate-with-Oxygen.jl" title="Permalink"></a></h2><p>Shout out to <a href="https://github.com/ndortega/Oxygen.jl">Oxygen.jl</a></p><pre><code class="language-julia hljs">using Oxygen, Umbrella, HTTP
+
+const oauth_path = &quot;/oauth2/google&quot;
+const oauth_callback = &quot;/oauth2/google/callback&quot;
+
+const options = Configuration.Options(;
+    client_id=&quot;&quot;, # client id from Google API Console
+    client_secret=&quot;&quot;, # secret from Google API Console
+    redirect_uri=&quot;http://127.0.0.1:8080$(oauth_callback)&quot;,
+    success_redirect=&quot;/protected&quot;,
+    failure_redirect=&quot;/failed&quot;,
+    scopes=[&quot;profile&quot;, &quot;openid&quot;, &quot;email&quot;]
+)
+
+const google_oauth2 = Umbrella.init(:google, options)
+
+@get &quot;/&quot; function ()
+  return &quot;&lt;a href=&#39;$(oauth_path)&#39;&gt;Authenticate with Google&lt;/a&gt;&quot;
+end
+
+@get oauth_path function ()
+  # this handles the Google oauth2 redirect in the background
+  google_oauth2.redirect()
+end
+
+@get oauth_callback function (req)
+  query_params = queryparams(req)
+  code = query_params[&quot;code&quot;]
+
+  function verify(tokens::Google.Tokens, user::Google.User)
+    # handle access and refresh tokens and user profile here
+  end
+
+  google_oauth2.token_exchange(code, verify)
+end
+
+@get &quot;/protected&quot; function()
+  &quot;Congrets, You signed in Successfully!&quot;
+end
+
+# start the web server
+serve()</code></pre><h2 id="Integrate-with-Mux.jl"><a class="docs-heading-anchor" href="#Integrate-with-Mux.jl">Integrate with Mux.jl</a><a id="Integrate-with-Mux.jl-1"></a><a class="docs-heading-anchor-permalink" href="#Integrate-with-Mux.jl" title="Permalink"></a></h2><p>Well done <a href="https://github.com/JuliaWeb/Mux.jl">Mux.jl</a></p><pre><code class="language-julia hljs">using Mux, Umbrella, HTTP
+
+const oauth_path = &quot;/oauth2/google&quot;
+const oauth_callback = &quot;/oauth2/google/callback&quot;
+
+const options = Configuration.Options(;
+    client_id=&quot;&quot;, # client id from Google API Console
+    client_secret=&quot;&quot;, # secret from Google API Console
+    redirect_uri=&quot;http://127.0.0.1:3000$(oauth_callback)&quot;,
+    success_redirect=&quot;/protected&quot;,
+    failure_redirect=&quot;/no&quot;,
+    scopes=[&quot;profile&quot;, &quot;openid&quot;, &quot;email&quot;]
+)
+
+function mux_redirect(url::String, status::Int = 302)
+  headers = Dict{String, String}(
+    &quot;Location&quot; =&gt; url
+  )
+
+  Dict(
+    :status =&gt; status,
+    :headers =&gt; headers,
+    :body =&gt; &quot;&quot;
+  )
+end
+
+const oauth2 = Umbrella.init(:google, options, mux_redirect)
+
+function callback(req)
+  params = HTTP.queryparams(req[:uri])
+  code = params[&quot;code&quot;]
+
+  oauth2.token_exchange(code, 
+    function (tokens::Google.Tokens, user::Google.User)
+      println(tokens.access_token)
+      println(tokens.refresh_token)
+      println(user.email)
+    end
+  )
+end
+
+@app http = (
+  Mux.defaults,
+  page(&quot;/&quot;, respond(&quot;&lt;a href=&#39;$(oauth_path)&#39;&gt;Authenticate with Google&lt;/a&gt;&quot;)),
+  page(oauth_path, req -&gt; oauth2.redirect()),
+  page(oauth_callback, callback),
+  page(&quot;/protected&quot;, respond(&quot;Congrets, You signed in Successfully!&quot;)),
+  Mux.notfound()
+)
+
+serve(http, 3000)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../reference/">« API Reference</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.22 on <span class="colophon-date" title="Monday 25 July 2022 03:36">Monday 25 July 2022</span>. Using Julia version 1.6.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
