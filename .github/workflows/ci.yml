@@ -49,6 +49,6 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: doctest
-            using Oxygen
-            doctest(Oxygen)'
+            using Umbrella
+            doctest(Umbrella)'
       - run: julia --project=docs docs/make.jl
