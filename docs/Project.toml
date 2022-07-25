@@ -1,6 +1,0 @@
-[deps]
-Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-Umbrella = "fb3c7edd-4d33-4ece-bf81-49ff2d418a94"
-
-[compat]
-Documenter = "0.27"
