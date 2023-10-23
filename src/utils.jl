@@ -1,19 +1,13 @@
 import HTTP
 
-function redirect(
-        url::String, params::Dict{String, Any}=nothing,
-        status::Int = 302
-    )
+function redirect(url::String, params::Dict{String, Any}, status::Int = 302)
+    # Set redirect parameters
+    uri = HTTP.URI(path = url, query = params)
+    redirect(string(uri), nothing, status)
+end
 
-    # Set redirect parameters (if they exist)
-    if ! isnothing(params)
-        uri = HTTP.URI(
-            path = url,
-            query = params
-        )
-        url = string(uri)
-    end
 
+function redirect(url::String, ::Nothing, status::Int = 302)
     # Redirect to url
     headers = Dict{String, String}(
         "Location" => url
