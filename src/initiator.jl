@@ -59,15 +59,15 @@ function init(type::Symbol, config::Configuration.Options, redirect_hanlder::Fun
         type,
         function ()
             url = actions[:redirect](config)
-            redirect_hanlder(url)
+            redirect_hanlder(url, nothing)
         end,
         function (code::String, verify::Function)
             tokens, profile = actions[:token_exchange](code, config)
             if tokens === nothing || profile === nothing
-                return redirect_hanlder(config.failure_redirect)
+                return redirect_hanlder(config.failure_redirect, nothing)
             end
-            verify(tokens, profile)
-            redirect_hanlder(config.success_redirect)
+            params = verify(tokens, profile)
+            redirect_hanlder(config.success_redirect, params)
         end
     )
 end

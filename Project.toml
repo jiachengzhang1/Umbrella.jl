@@ -1,7 +1,7 @@
 name = "Umbrella"
 uuid = "fb3c7edd-4d33-4ece-bf81-49ff2d418a94"
 authors = ["Jiacheng Zhang <zhangjiacheng54@gmail.com>"]
-version = "0.2.0"
+version = "0.3.0"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"

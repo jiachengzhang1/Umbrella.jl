@@ -1,7 +1,7 @@
 
 const MOCK_AUTH_URL = "https://mock.com/oauth2/"
 
-function mock_redirect(url::String) url end
+function mock_redirect(url::String, params::Nothing) url end
 
 function mock_redirect_url(config::Configuration.Options)
   "$(MOCK_AUTH_URL)?client_id=$(config.client_id)&redirect_uri=$(config.redirect_uri)&scope=$(config.scope)"
@@ -13,6 +13,7 @@ end
 
 function mock_verify(tokens, user)
   tokens, user
+  return nothing
 end
 
 register(:mock, OAuth2Actions(mock_redirect_url, mock_token_exchange))
