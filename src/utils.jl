@@ -1,6 +1,6 @@
 import HTTP
 
-function redirect(url::String, params::Dict{String, Any}, status::Int = 302)
+function redirect(url::String, params::Dict{String, <:Any}, status::Int = 302)
     # Set redirect parameters
     uri = HTTP.URI(path = url, query = params)
     redirect(string(uri), nothing, status)
