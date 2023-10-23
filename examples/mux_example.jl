@@ -44,7 +44,7 @@ end
   page("/", respond("<a href='$(oauth_path)'>Authenticate with Google</a>")),
   page(oauth_path, req -> oauth2.redirect()),
   page(oauth_callback, callback),
-  page("/protected", respond("Congrets, You signed in Successfully!")),
+  page("/protected", respond("Congrats, You signed in Successfully!")),
   Mux.notfound()
 )
 

@@ -40,7 +40,7 @@ end
 end
 
 @get "/protected" function()
-  "Congrets, You signed in Successfully!"
+  "Congrats, You signed in Successfully!"
 end
 
 # start the web server
